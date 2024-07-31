@@ -17,7 +17,8 @@ g = 9.81;         %[m/s^2] Erdbeschleungigung
 
 t = [0:delta_t:sim_t];  % [s]
 
-F = zeros(size(t)) + 2000;     % [N]
+F = zeros(size(t)) + 2000;
+F_gesamt = zeros(size(t));    % [N]
 
 a = zeros(size(t)); % [m/s^2]
 
@@ -34,11 +35,9 @@ v(1) = 0; % [m/s] Startgeschwindigkeit
 
 for i_step = 2:length(t);
 
-  if (v(i_step - 1) > 50/3.6 )
-     F(i_step) = 0;
-  end
+  F_gesamt = (F(i_step) - k_reib * m * g);
 
-  a(i_step) = (F(i_step) - k_reib * m * g)/m;
+  a(i_step) = F_gesamt/m;
 
   v(i_step) = a(i_step) * delta_t + v(i_step - 1);
 

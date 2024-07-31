@@ -1,4 +1,4 @@
-%30..07.2024
+%30.07.2024
 %Übung Sim mit Auto
 
 clear all;
@@ -15,15 +15,16 @@ roh_L = 1.2;        % [kg/m^3] Luftdichte
 
 A = 4;          % [m^2] Fläche
 
-k_cw = 0.01;         %Gleitzahl
+k_cw = 0.9;         %Gleitzahl Polo
 
 k_reib = 0.01;    %Reibungszahl
 
 g = 9.81;         %[m/s^2] Erdbeschleungigung
 
 t = [0:delta_t:sim_t];  % [s]
+F = zeros(size(t)) + 2000;
 
-F = zeros(size(t)) + 2000;     % [N]
+F_gesamt = zeros(size(t));    % [N]
 
 a = zeros(size(t)); % [m/s^2]
 
@@ -40,13 +41,15 @@ v(1) = 0; % [m/s] Startgeschwindigkeit
 
 for i_step = 2:length(t);
 
-    if (v(i_step - 1) > 50/3.6 )
-     F(i_step) = 0;
-  end
+##  if (v(i_step - 1) > 50/3.6 )
+##     F(i_step) = 0;
+##  end
 
-  v(i_step) = (m/(roh_L*k_cw*A*delta_t)) * (1 - sqrt(1 + (2*k_reib*g*k_cw*A*delta_t^2)/m - ((2*F(i_step)*roh_L*k_cw*A*delta_t^2)/(m^2))- ((v(i_step-1)*roh_L*k_cw*A*delta_t)/(2*m))));
+  F_gesamt = (F(i_step) - k_reib * m * g - roh_L * A * (k_cw/2) *  v(i_step - 1)^2);
 
-  a(i_step) = (v(i_step) - v(i_step - 1))/delta_t;
+  a(i_step) = F_gesamt/m;
+
+  v(i_step) = a(i_step) * delta_t + v(i_step - 1);
 
   s(i_step) = v(i_step) * delta_t + s(i_step - 1);
 
@@ -75,11 +78,9 @@ grid on;
 figure(3);
 clf;
 
-plot(t,s,'b');
+plot(t,s/1000,'b');
 xlabel('Zeit [s]')
-ylabel('Weg [m] ')
+ylabel('Weg [km] ')
 grid on;
 
 toc
-
-
